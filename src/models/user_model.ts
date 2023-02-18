@@ -2,13 +2,9 @@ import mongoose from 'mongoose'
 
 const userSchema = new mongoose.Schema(
     {
-        _id: {
-            type: String,
-            required: true
-        },
         avatarUrl: {
             type: String,
-            required: true,
+            required: false,
             default: ''
         },
         email: {
@@ -30,7 +26,8 @@ const userSchema = new mongoose.Schema(
             default: []
         },
         refresh_tokens: {
-            type: [String]
+            type: [String],
+            default: []
         }
     },
     { timestamps: true }

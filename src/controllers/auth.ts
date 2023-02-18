@@ -11,32 +11,35 @@ function sendError(res: Response, error: string) {
 }
 
 const register = async (req: Request, res: Response) => {
-    const email = req.body.email
-    const password = req.body.password
+    const { email, name, password } = req.body;
 
-    if (email == null || password == null) {
-        return sendError(res, 'please provide valid email and password')
+    if (!email || !password || !name) {
+        return sendError(res, 'please provide valid email, password & name')
     }
 
     try {
-        const user = await User.findOne({ 'email': email })
+        const user = await User.findOne({ 'email': email });
+
         if (user != null) {
-            return sendError(res, 'user already registered, try a different name')
+            return sendError(res, 'Email already exists!')
         }
 
         const salt = await bcrypt.genSalt(10)
         const encryptedPwd = await bcrypt.hash(password, salt)
+
         const newUser = new User({
-            'email': email,
-            'password': encryptedPwd
-        })
+            email,
+            password: encryptedPwd,
+            name,
+        });
+
         await newUser.save()
         return res.status(200).send({
             'email': email,
             '_id': newUser._id
         })
     } catch (err) {
-        return sendError(res, 'fail ...')
+        return sendError(res, 'failed creating user');
     }
 }
 

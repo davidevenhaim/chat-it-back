@@ -4,13 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const mongoose_1 = __importDefault(require("mongoose"));
 const userSchema = new mongoose_1.default.Schema({
-    _id: {
-        type: String,
-        required: true
-    },
     avatarUrl: {
         type: String,
-        required: true,
+        required: false,
         default: ''
     },
     email: {
@@ -32,7 +28,8 @@ const userSchema = new mongoose_1.default.Schema({
         default: []
     },
     refresh_tokens: {
-        type: [String]
+        type: [String],
+        default: []
     }
 }, { timestamps: true });
 module.exports = mongoose_1.default.model('User', userSchema);
