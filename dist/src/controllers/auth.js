@@ -64,10 +64,10 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_model_1.default.findOne({ 'email': email });
         if (user == null)
-            return sendError(res, 'incorrect user or password');
+            return sendError(res, 'Incorrect user or password');
         const match = yield bcrypt_1.default.compare(password, user.password);
         if (!match)
-            return sendError(res, 'incorrect user or password');
+            return sendError(res, 'Incorrect user or password');
         const tokens = yield generateTokens(user._id.toString());
         if (user.refresh_tokens == null)
             user.refresh_tokens = [tokens.refreshToken];
