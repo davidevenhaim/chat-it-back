@@ -12,11 +12,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const user_model_1 = __importDefault(require("../models/user_model"));
+const post_model_1 = __importDefault(require("../models/post_model"));
+const mongoose_1 = __importDefault(require("mongoose"));
+const ObjectId = mongoose_1.default.Types.ObjectId;
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     try {
-        const student = yield user_model_1.default.findById(id);
-        res.status(200).send(student);
+        const user = yield user_model_1.default.aggregate([
+            { $match: { _id: new ObjectId(id) } },
+            {
+                $lookup: {
+                    from: post_model_1.default.collection.name,
+                    localField: "posts",
+                    foreignField: "_id",
+                    as: "posts"
+                },
+            },
+            {
+                $project: {
+                    "refresh_tokens": 0
+                }
+            }
+        ]);
+        if (user.length > 0) {
+            res.status(200).send(user[0]);
+        }
+        else {
+            res.status(404).send({ err: "Couldnt find this user id" });
+        }
     }
     catch (err) {
         res.status(400).send({ err: err.message });

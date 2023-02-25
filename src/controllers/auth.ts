@@ -93,8 +93,6 @@ async function generateTokens(userId: string) {
 }
 
 const login = async (req: Request, res: Response) => {
-    console.log("LOGIN");
-    console.log(req.body)
     const email = req.body.email
     const password = req.body.password
 
@@ -115,8 +113,8 @@ const login = async (req: Request, res: Response) => {
         else user.refresh_tokens.push(tokens.refreshToken)
 
         await user.save()
-
-        return res.status(200).send({ ...tokens, avatar: user.avatarUrl, name: user.name, email: user.email, _id: user._id })
+        console.log("{ ...tokens, id: user._id }: ", { ...tokens, id: user._id })
+        return res.status(200).send({ ...tokens, id: user._id })
     } catch (err) {
         console.log("error: " + err)
         return sendError(res, 'fail checking user')
@@ -154,7 +152,7 @@ const refresh = async (req: Request, res: Response) => {
 
         await userObj.save()
 
-        return res.status(200).send({ ...tokens, avatar: userObj.avatarUrl, name: userObj.name, email: userObj.email })
+        return res.status(200).send({ ...tokens, id: userObj._id })
     } catch (err) {
         return sendError(res, 'fail validating token')
     }
@@ -209,7 +207,7 @@ const googleSignUser = async (req: Request, res: Response) => {
 
         await user.save()
 
-        return res.status(200).send({ ...tokens, avatar: user.avatarUrl, name: user.name, email: user.email });
+        return res.status(200).send({ ...tokens, id: user._id });
     } catch (err) {
         return sendError(res, err + 'Failed to authenticate google user');
 

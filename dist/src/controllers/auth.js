@@ -83,8 +83,6 @@ function generateTokens(userId) {
     });
 }
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("LOGIN");
-    console.log(req.body);
     const email = req.body.email;
     const password = req.body.password;
     if (email == null || password == null) {
@@ -103,7 +101,8 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         else
             user.refresh_tokens.push(tokens.refreshToken);
         yield user.save();
-        return res.status(200).send(Object.assign(Object.assign({}, tokens), { avatar: user.avatarUrl, name: user.name, email: user.email }));
+        console.log("{ ...tokens, id: user._id }: ", Object.assign(Object.assign({}, tokens), { id: user._id }));
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { id: user._id }));
     }
     catch (err) {
         console.log("error: " + err);
@@ -133,7 +132,7 @@ const refresh = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const tokens = yield generateTokens(userObj._id.toString());
         userObj.refresh_tokens[userObj.refresh_tokens.indexOf(refreshToken)] = tokens.refreshToken;
         yield userObj.save();
-        return res.status(200).send(Object.assign(Object.assign({}, tokens), { avatar: userObj.avatarUrl, name: userObj.name, email: userObj.email }));
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { id: userObj._id }));
     }
     catch (err) {
         return sendError(res, 'fail validating token');
@@ -182,7 +181,7 @@ const googleSignUser = (req, res) => __awaiter(void 0, void 0, void 0, function*
         else
             user.refresh_tokens.push(tokens.refreshToken);
         yield user.save();
-        return res.status(200).send(Object.assign(Object.assign({}, tokens), { avatar: user.avatarUrl, name: user.name, email: user.email }));
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { id: user._id }));
     }
     catch (err) {
         return sendError(res, err + 'Failed to authenticate google user');
