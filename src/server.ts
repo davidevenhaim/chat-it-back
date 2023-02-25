@@ -30,8 +30,8 @@ app.use('/auth', authRouter)
 import postRouter from './routes/post_route.js'
 app.use('/post', postRouter)
 
-import studentRouter from './routes/student_route.js'
-app.use('/student', studentRouter)
+// import studentRouter from './routes/student_route.js'
+// app.use('/student', studentRouter)
 
 import userRouter from './routes/user_route';
 app.use('/user', userRouter);
@@ -41,8 +41,6 @@ app.use('/file', fileRouter)
 
 import swaggerUI from "swagger-ui-express"
 import swaggerJsDoc from "swagger-jsdoc"
-
-console.log("!!!!!!!!!!!!!!!!!@@@@@@@")
 
 if (process.env.NODE_ENV == "development") {
     const options = {

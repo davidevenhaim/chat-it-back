@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 const userSchema = new mongoose.Schema(
     {
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
             required: true
         },
         posts: {
-            type: [String],
+            type: [{ type: Schema.Types.ObjectId, ref: 'Person' }],
             required: true,
             default: []
         },

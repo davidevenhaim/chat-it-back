@@ -24,13 +24,28 @@ const getAllPostsEvent = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let posts = {};
-        if (req.query.sender == null) {
-            posts = yield post_model_1.default.find();
-        }
-        else {
-            posts = yield post_model_1.default.find({ 'sender': req.query.sender });
-        }
+        const posts = yield post_model_1.default.aggregate([
+            { $unwind: "$userId" },
+            {
+                $lookup: {
+                    from: user_model_1.default.collection.name,
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "owner"
+                }
+            },
+            { $unwind: '$owner' },
+            {
+                $project: {
+                    "owner.password": 0,
+                    "owner.posts": 0,
+                    "owner.createdAt": 0,
+                    "owner.refresh_tokens": 0,
+                    "owner.updatedAt": 0,
+                    "owner.__v": 0,
+                }
+            }
+        ]);
         res.status(200).send(posts);
     }
     catch (err) {
@@ -76,7 +91,7 @@ const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const post = new post_model_1.default({
             text,
             image,
-            userId
+            userId: currentUser._id
         });
         const userPosts = currentUser.posts || [];
         userPosts.push(post.id);
@@ -85,7 +100,24 @@ const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(200).send(newPost);
     }
     catch (err) {
-        res.status(400).send({ err: 'fail adding new post to db' });
+        console.log(err);
+        res.status(400).send({ err: 'fail adding new post to db' + err });
+    }
+});
+const editPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId, } = req.body;
+        const { id } = req.params;
+        const currentUser = yield user_model_1.default.findById(userId);
+        if (!currentUser) {
+            res.status(400).send({ err: 'Failed to create post - user id does not exists' });
+        }
+        const post = yield post_model_1.default.findByIdAndUpdate(id, Object.assign({}, req.body));
+        yield post.save();
+        res.status(200).send(post);
+    }
+    catch (err) {
+        res.status(400).send({ err: 'fail adding new post to db' + err });
     }
 });
 const updatePostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -93,7 +125,8 @@ const updatePostById = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const { image, text, userId } = req.body;
         const { id: postId } = req.params;
         const post = yield post_model_1.default.findById(postId);
-        if (userId !== post.userId) {
+        console.log(post.userId.toString());
+        if (userId !== post.userId.toString()) {
             return res.status(401).send({ err: "Error, user is not authorized to change this post." });
         }
         post.$set({
@@ -105,7 +138,7 @@ const updatePostById = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (err) {
         console.log("fail to update post in db");
-        res.status(400).send({ err: 'fail adding new post to db' });
+        res.status(400).send({ err: 'fail adding new post to db' + err });
     }
 });
 module.exports = { getAllPosts, getAllMyPosts, addNewPost, getPostById, updatePostById, getAllPostsEvent, };

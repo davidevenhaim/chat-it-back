@@ -189,15 +189,12 @@ const googleSignUser = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 const authenticateMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("authenticateMiddleware");
     const token = getTokenFromRequest(req);
     if (token == null)
         return sendError(res, 'authentication missing');
     try {
         const user = jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        console.log("User auth is: ", user);
         req.body.userId = user.id;
-        console.log("token user: " + user);
         return next();
     }
     catch (err) {

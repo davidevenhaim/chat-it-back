@@ -111,7 +111,7 @@ router.get('/my-posts', auth_js_1.default.authenticateMiddleware, post_js_1.defa
 router.get('/:id', auth_js_1.default.authenticateMiddleware, post_js_1.default.getPostById);
 /**
  * @swagger
- * /post:
+ * /post/add-post:
  *   post:
  *     summary: add a new post
  *     tags: [Post]

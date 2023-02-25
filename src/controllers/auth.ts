@@ -116,7 +116,7 @@ const login = async (req: Request, res: Response) => {
 
         await user.save()
 
-        return res.status(200).send({ ...tokens, avatar: user.avatarUrl, name: user.name, email: user.email })
+        return res.status(200).send({ ...tokens, avatar: user.avatarUrl, name: user.name, email: user.email, _id: user._id })
     } catch (err) {
         console.log("error: " + err)
         return sendError(res, 'fail checking user')
@@ -217,14 +217,12 @@ const googleSignUser = async (req: Request, res: Response) => {
 }
 
 const authenticateMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("authenticateMiddleware")
     const token = getTokenFromRequest(req)
     if (token == null) return sendError(res, 'authentication missing')
     try {
         const user = <TokenInfo>jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-        console.log("User auth is: ", user);
         req.body.userId = user.id
-        console.log("token user: " + user)
+
         return next()
     } catch (err) {
         return sendError(res, 'fail validating token')

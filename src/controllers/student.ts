@@ -28,12 +28,10 @@ const getStudentById = async (req: Request, res: Response) => {
 
 
 const addNewStudent = async (req: Request, res: Response) => {
-    console.log(req.body)
-
     const student = new Student({
         _id: req.body._id,
         name: req.body.name,
-        avatarUrl: req.body.avatarUrl,
+        avatarUrl: req.body.avatacrUrl,
     })
 
     try {

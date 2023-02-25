@@ -34,11 +34,10 @@ const getStudentById = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 const addNewStudent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
     const student = new student_model_1.default({
         _id: req.body._id,
         name: req.body.name,
-        avatarUrl: req.body.avatarUrl,
+        avatarUrl: req.body.avatacrUrl,
     });
     try {
         const newStudent = yield student.save();

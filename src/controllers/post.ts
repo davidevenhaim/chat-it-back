@@ -17,12 +17,30 @@ const getAllPostsEvent = async () => {
 
 const getAllPosts = async (req: Request, res: Response) => {
     try {
-        let posts = {}
-        if (req.query.sender == null) {
-            posts = await Post.find()
-        } else {
-            posts = await Post.find({ 'sender': req.query.sender })
-        }
+        const posts = await Post.aggregate(
+            [
+                { $unwind: "$userId" },
+                {
+                    $lookup: {
+                        from: Users.collection.name,
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "owner"
+                    }
+                },
+                { $unwind: '$owner' },
+                {
+                    $project: {
+                        "owner.password": 0,
+                        "owner.posts": 0,
+                        "owner.createdAt": 0,
+                        "owner.refresh_tokens": 0,
+                        "owner.updatedAt": 0,
+                        "owner.__v": 0,
+                    }
+                }
+            ]
+        );
         res.status(200).send(posts)
     } catch (err) {
         res.status(400).send({ err: "fail to get posts from db" })
@@ -76,7 +94,7 @@ const addNewPost = async (req: Request, res: Response) => {
         const post = new Post({
             text,
             image,
-            userId
+            userId: currentUser._id
         });
 
         const userPosts = currentUser.posts || [];
@@ -88,7 +106,31 @@ const addNewPost = async (req: Request, res: Response) => {
 
         res.status(200).send(newPost);
     } catch (err) {
-        res.status(400).send({ err: 'fail adding new post to db' })
+        console.log(err)
+        res.status(400).send({ err: 'fail adding new post to db' + err })
+    }
+}
+
+const editPost = async (req: Request, res: Response) => {
+    try {
+        const { userId, } = req.body;
+        const { id } = req.params;
+
+        const currentUser = await Users.findById(userId);
+
+        if (!currentUser) {
+            res.status(400).send({ err: 'Failed to create post - user id does not exists' });
+        }
+
+        const post = await Post.findByIdAndUpdate(id, {
+            ...req.body,
+        })
+
+        await post.save();
+
+        res.status(200).send(post);
+    } catch (err) {
+        res.status(400).send({ err: 'fail adding new post to db' + err })
     }
 }
 
@@ -99,8 +141,8 @@ const updatePostById = async (req: Request, res: Response) => {
         const { id: postId } = req.params;
 
         const post = await Post.findById(postId);
-
-        if (userId !== post.userId) {
+        console.log(post.userId.toString())
+        if (userId !== post.userId.toString()) {
             return res.status(401).send({ err: "Error, user is not authorized to change this post." });
         }
 
@@ -115,7 +157,7 @@ const updatePostById = async (req: Request, res: Response) => {
 
     } catch (err) {
         console.log("fail to update post in db")
-        res.status(400).send({ err: 'fail adding new post to db' })
+        res.status(400).send({ err: 'fail adding new post to db' + err })
     }
 }
 

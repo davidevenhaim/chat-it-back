@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 const messagechema = new mongoose.Schema({
     message: {
@@ -6,10 +6,13 @@ const messagechema = new mongoose.Schema({
         required: true
     },
     sender: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     }
-})
+},
+    { timestamps: true }
+)
 
 export = mongoose.model('Message', messagechema)
 

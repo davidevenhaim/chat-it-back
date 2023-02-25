@@ -113,7 +113,7 @@ router.get('/:id', auth.authenticateMiddleware, post.getPostById)
 
 /**
  * @swagger
- * /post:
+ * /post/add-post:
  *   post:
  *     summary: add a new post
  *     tags: [Post]
@@ -135,7 +135,6 @@ router.get('/:id', auth.authenticateMiddleware, post.getPostById)
  *  
  */
 router.post('/add-post', auth.authenticateMiddleware, post.addNewPost)
-
 
 /**
  * @swagger
