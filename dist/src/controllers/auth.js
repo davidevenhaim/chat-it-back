@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const user_model_1 = __importDefault(require("../models/user_model"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const defaultPass = "david119191";
 function sendError(res, error) {
     res.status(400).send({
         'err': error
@@ -21,9 +22,6 @@ function sendError(res, error) {
 }
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, name, password } = req.body;
-    console.log(email);
-    console.log(name);
-    console.log(password);
     if (!email || !password || !name) {
         return sendError(res, 'please provide valid email, password & name');
     }
@@ -34,13 +32,11 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const salt = yield bcrypt_1.default.genSalt(10);
         const encryptedPwd = yield bcrypt_1.default.hash(password, salt);
-        console.log("Here");
         const newUser = new user_model_1.default({
             email,
             password: encryptedPwd,
             name,
         });
-        console.log("new user created: ", newUser);
         yield newUser.save();
         return res.status(200).send({
             'email': email,
@@ -51,6 +47,34 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return sendError(res, 'failed creating user');
     }
 });
+function changeUserPassword(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { id } = req.params;
+        const { newPassword, oldPassword } = req.body;
+        if (!newPassword || !oldPassword) {
+            return res.status(400).send({
+                msg: 'data is missing',
+                status: 400
+            });
+        }
+        const user = yield user_model_1.default.findById(id);
+        if (user == null)
+            return sendError(res, 'Incorrect user id');
+        const match = yield bcrypt_1.default.compare(oldPassword, user.password);
+        if (!match)
+            return sendError(res, 'Incorrect user or password');
+        const salt = yield bcrypt_1.default.genSalt(10);
+        const encryptedPwd = yield bcrypt_1.default.hash(newPassword, salt);
+        user.set({
+            password: encryptedPwd,
+        });
+        yield user.save();
+        res.status(200).send({
+            'email': user.email,
+            '_id': user._id
+        });
+    });
+}
 function generateTokens(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const accessToken = jsonwebtoken_1.default.sign({ 'id': userId }, process.env.ACCESS_TOKEN_SECRET, { 'expiresIn': process.env.JWT_TOKEN_EXPIRATION });
@@ -79,7 +103,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         else
             user.refresh_tokens.push(tokens.refreshToken);
         yield user.save();
-        return res.status(200).send(tokens);
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { avatar: user.avatarUrl, name: user.name, email: user.email }));
     }
     catch (err) {
         console.log("error: " + err);
@@ -108,10 +132,8 @@ const refresh = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const tokens = yield generateTokens(userObj._id.toString());
         userObj.refresh_tokens[userObj.refresh_tokens.indexOf(refreshToken)] = tokens.refreshToken;
-        console.log("refresh token: " + refreshToken);
-        console.log("with token: " + tokens.refreshToken);
         yield userObj.save();
-        return res.status(200).send(tokens);
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { avatar: userObj.avatarUrl, name: userObj.name, email: userObj.email }));
     }
     catch (err) {
         return sendError(res, 'fail validating token');
@@ -139,12 +161,41 @@ const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return sendError(res, 'fail validating token');
     }
 });
+const googleSignUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, name, avatar } = req.body;
+        let user = yield user_model_1.default.findOne({ email });
+        if (!user) {
+            // create a user
+            const salt = yield bcrypt_1.default.genSalt(10);
+            const encryptedPwd = yield bcrypt_1.default.hash(defaultPass, salt);
+            user = new user_model_1.default({
+                email,
+                password: encryptedPwd,
+                name,
+                avatarUrl: avatar
+            });
+        }
+        const tokens = yield generateTokens(user._id.toString());
+        if (user.refresh_tokens == null)
+            user.refresh_tokens = [tokens.refreshToken];
+        else
+            user.refresh_tokens.push(tokens.refreshToken);
+        yield user.save();
+        return res.status(200).send(Object.assign(Object.assign({}, tokens), { avatar: user.avatarUrl, name: user.name, email: user.email }));
+    }
+    catch (err) {
+        return sendError(res, err + 'Failed to authenticate google user');
+    }
+});
 const authenticateMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("authenticateMiddleware");
     const token = getTokenFromRequest(req);
     if (token == null)
         return sendError(res, 'authentication missing');
     try {
         const user = jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        console.log("User auth is: ", user);
         req.body.userId = user.id;
         console.log("token user: " + user);
         return next();
@@ -153,5 +204,5 @@ const authenticateMiddleware = (req, res, next) => __awaiter(void 0, void 0, voi
         return sendError(res, 'fail validating token');
     }
 });
-module.exports = { login, refresh, register, logout, authenticateMiddleware };
+module.exports = { changeUserPassword, login, refresh, register, logout, googleSignUser, authenticateMiddleware };
 //# sourceMappingURL=auth.js.map

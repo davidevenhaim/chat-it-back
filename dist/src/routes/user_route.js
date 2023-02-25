@@ -69,7 +69,7 @@ router.get('/:id', users_1.default.getUser);
  *     summary: change user data
  *     tags: [User]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [JWT]
  *     parameters:
  *       - in: path
  *         name: id

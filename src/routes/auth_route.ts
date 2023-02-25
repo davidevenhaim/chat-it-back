@@ -71,7 +71,7 @@ import auth from '../controllers/auth.js'
  *                 description: The error description 
  *  
  */
-router.post('/register',auth.register)
+router.post('/register', auth.register)
 
 
 /**
@@ -103,7 +103,7 @@ router.post('/register',auth.register)
  *               refresh_token: '123456...'
  *
  */
-router.post('/login',auth.login)
+router.post('/login', auth.login)
 
 
 /**
@@ -131,7 +131,7 @@ router.post('/login',auth.login)
  *               refresh_token: '123456...'
  *
  */
-router.get('/refresh',auth.refresh)
+router.get('/refresh', auth.refresh)
 
 
 /**
@@ -147,7 +147,42 @@ router.get('/refresh',auth.refresh)
  *         description: logout sucess, refresh token is invalidated
  *
  */
-router.get('/logout',auth.logout)
+router.get('/logout', auth.logout)
+
+/**
+ * @swagger
+ * /auth/google-sign-user:
+ *   post:
+ *     summary: User Google to sign in or create a user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             email: string;
+ *             name: string;
+ *             avatar: string;
+ *     security:
+ *       - bearerAuth: []
+*     responses:
+ *       200:
+ *         description: Google sign user success retuns user info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Google sign user  error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               err:
+ *                 type: string
+ *                 description: The error description 
+ *
+ */
+router.post('/google-sign-user', auth.googleSignUser)
 
 export = router
 

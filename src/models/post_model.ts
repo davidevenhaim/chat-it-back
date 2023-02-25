@@ -1,11 +1,15 @@
 import mongoose from 'mongoose'
 
 const postSchema = new mongoose.Schema({
-    message: {
+    text: {
         type: String,
         required: true
     },
-    sender: {
+    image: {
+        type: String,
+        required: true
+    },
+    userId: {
         type: String,
         required: true
     }

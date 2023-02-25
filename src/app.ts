@@ -1,9 +1,11 @@
+import jwt from 'jsonwebtoken'
+
 import server from './server'
 import io from './socket_server'
 io(server)
 
-server.listen(process.env.PORT,()=>{
-    console.log('Server started')    
+server.listen(process.env.PORT, async () => {
+    console.log('Server started')
 })
 
 export = server

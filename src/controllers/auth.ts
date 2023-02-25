@@ -4,6 +4,8 @@ import { NextFunction, Request, Response } from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
+const defaultPass = "david119191"
+
 function sendError(res: Response, error: string) {
     res.status(400).send({
         'err': error
@@ -43,6 +45,39 @@ const register = async (req: Request, res: Response) => {
     }
 }
 
+async function changeUserPassword(req: Request, res: Response) {
+    const { id } = req.params
+    const { newPassword, oldPassword } = req.body;
+
+    if (!newPassword || !oldPassword) {
+        return res.status(400).send({
+            msg: 'data is missing',
+            status: 400
+        });
+    }
+
+    const user = await User.findById(id);
+    if (user == null) return sendError(res, 'Incorrect user id');
+
+    const match = await bcrypt.compare(oldPassword, user.password)
+    if (!match) return sendError(res, 'Incorrect user or password');
+
+    const salt = await bcrypt.genSalt(10)
+    const encryptedPwd = await bcrypt.hash(newPassword, salt)
+
+    user.set({
+        password: encryptedPwd,
+    });
+
+    await user.save();
+
+    res.status(200).send({
+        'email': user.email,
+        '_id': user._id
+    });
+
+}
+
 async function generateTokens(userId: string) {
     const accessToken = jwt.sign(
         { 'id': userId },
@@ -78,9 +113,10 @@ const login = async (req: Request, res: Response) => {
 
         if (user.refresh_tokens == null) user.refresh_tokens = [tokens.refreshToken]
         else user.refresh_tokens.push(tokens.refreshToken)
+
         await user.save()
 
-        return res.status(200).send(tokens)
+        return res.status(200).send({ ...tokens, avatar: user.avatarUrl, name: user.name, email: user.email })
     } catch (err) {
         console.log("error: " + err)
         return sendError(res, 'fail checking user')
@@ -115,11 +151,10 @@ const refresh = async (req: Request, res: Response) => {
         const tokens = await generateTokens(userObj._id.toString())
 
         userObj.refresh_tokens[userObj.refresh_tokens.indexOf(refreshToken)] = tokens.refreshToken
-        console.log("refresh token: " + refreshToken)
-        console.log("with token: " + tokens.refreshToken)
+
         await userObj.save()
 
-        return res.status(200).send(tokens)
+        return res.status(200).send({ ...tokens, avatar: userObj.avatarUrl, name: userObj.name, email: userObj.email })
     } catch (err) {
         return sendError(res, 'fail validating token')
     }
@@ -148,11 +183,46 @@ const logout = async (req: Request, res: Response) => {
     }
 }
 
+const googleSignUser = async (req: Request, res: Response) => {
+    try {
+        const { email, name, avatar } = req.body;
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // create a user
+            const salt = await bcrypt.genSalt(10)
+            const encryptedPwd = await bcrypt.hash(defaultPass, salt);
+
+            user = new User({
+                email,
+                password: encryptedPwd,
+                name,
+                avatarUrl: avatar
+            });
+        }
+
+        const tokens = await generateTokens(user._id.toString())
+
+        if (user.refresh_tokens == null) user.refresh_tokens = [tokens.refreshToken]
+        else user.refresh_tokens.push(tokens.refreshToken)
+
+        await user.save()
+
+        return res.status(200).send({ ...tokens, avatar: user.avatarUrl, name: user.name, email: user.email });
+    } catch (err) {
+        return sendError(res, err + 'Failed to authenticate google user');
+
+    }
+}
+
 const authenticateMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    console.log("authenticateMiddleware")
     const token = getTokenFromRequest(req)
     if (token == null) return sendError(res, 'authentication missing')
     try {
         const user = <TokenInfo>jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+        console.log("User auth is: ", user);
         req.body.userId = user.id
         console.log("token user: " + user)
         return next()
@@ -162,4 +232,4 @@ const authenticateMiddleware = async (req: Request, res: Response, next: NextFun
 
 }
 
-export = { login, refresh, register, logout, authenticateMiddleware }
+export = { changeUserPassword, login, refresh, register, logout, googleSignUser, authenticateMiddleware }

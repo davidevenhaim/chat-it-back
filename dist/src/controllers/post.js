@@ -12,8 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const post_model_1 = __importDefault(require("../models/post_model"));
+const user_model_1 = __importDefault(require("../models/user_model"));
 const getAllPostsEvent = () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("");
     try {
         const posts = yield post_model_1.default.find();
         return { status: 'OK', data: posts };
@@ -34,44 +34,79 @@ const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(200).send(posts);
     }
     catch (err) {
-        res.status(400).send({ 'error': "fail to get posts from db" });
+        res.status(400).send({ err: "fail to get posts from db" });
     }
 });
-const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.params.id);
+const getAllMyPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const posts = yield post_model_1.default.findById(req.params.id);
+        const { userId } = req.body;
+        const user = yield user_model_1.default.findById(userId);
+        if (!user) {
+            res.status(400).send({ err: "Token invalid. User id doesn't exists" });
+        }
+        const ids = user.posts;
+        const posts = yield post_model_1.default.find({
+            _id: { $in: ids }
+        });
         res.status(200).send(posts);
     }
     catch (err) {
-        res.status(400).send({ 'error': "fail to get posts from db" });
+        res.status(400).send({ err: "fail to get posts from db" });
+    }
+});
+const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const posts = yield post_model_1.default.findById(id);
+        res.status(200).send(posts);
+    }
+    catch (err) {
+        res.status(400).send({ err: "fail to get posts from db" });
     }
 });
 const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
-    const post = new post_model_1.default({
-        message: req.body.message,
-        sender: req.body.userId //extract the user id from the auth 
-    });
+    console.log("Add new post");
     try {
-        const newPost = yield post.save();
-        console.log("save post in db");
+        const { userId, text, image } = req.body;
+        console.log(req.body);
+        const currentUser = yield user_model_1.default.findById(userId);
+        if (!currentUser) {
+            res.status(400).send({ err: 'Failed to create post - user id does not exists' });
+        }
+        const post = new post_model_1.default({
+            text,
+            image,
+            userId
+        });
+        const userPosts = currentUser.posts || [];
+        userPosts.push(post.id);
+        currentUser.posts = userPosts;
+        const [newPost] = yield Promise.all([post.save(), currentUser.save()]);
         res.status(200).send(newPost);
     }
     catch (err) {
-        console.log("fail to save post in db");
-        res.status(400).send({ 'error': 'fail adding new post to db' });
+        res.status(400).send({ err: 'fail adding new post to db' });
     }
 });
-const putPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updatePostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const post = yield post_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const { image, text, userId } = req.body;
+        const { id: postId } = req.params;
+        const post = yield post_model_1.default.findById(postId);
+        if (userId !== post.userId) {
+            return res.status(401).send({ err: "Error, user is not authorized to change this post." });
+        }
+        post.$set({
+            image: image || post.image,
+            text: text || post.text,
+        });
+        yield post.save();
         res.status(200).send(post);
     }
     catch (err) {
         console.log("fail to update post in db");
-        res.status(400).send({ 'error': 'fail adding new post to db' });
+        res.status(400).send({ err: 'fail adding new post to db' });
     }
 });
-module.exports = { getAllPosts, addNewPost, getPostById, putPostById, getAllPostsEvent };
+module.exports = { getAllPosts, getAllMyPosts, addNewPost, getPostById, updatePostById, getAllPostsEvent, };
 //# sourceMappingURL=post.js.map

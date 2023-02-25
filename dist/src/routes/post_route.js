@@ -57,7 +57,33 @@ const auth_js_1 = __importDefault(require("../controllers/auth.js"));
  *                  $ref: '#/components/schemas/Post'
  *
  */
-router.get('/', post_js_1.default.getAllPosts);
+router.get('/', auth_js_1.default.authenticateMiddleware, post_js_1.default.getAllPosts);
+/**
+ * @swagger
+ * /post:
+ *   get:
+ *     summary: get list of post from server
+ *     tags: [Post]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: sender
+ *         schema:
+ *           type: string
+ *           description: filter the posts according to the given sender id
+ *     responses:
+ *       200:
+ *         description: the list of posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                  $ref: '#/components/schemas/Post'
+ *
+ */
+router.get('/my-posts', auth_js_1.default.authenticateMiddleware, post_js_1.default.getAllPosts);
 /**
  * @swagger
  * /post/{id}:
@@ -90,7 +116,7 @@ router.get('/:id', auth_js_1.default.authenticateMiddleware, post_js_1.default.g
  *     summary: add a new post
  *     tags: [Post]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [JWT]
  *     requestBody:
  *       required: true
  *       content:
@@ -106,7 +132,7 @@ router.get('/:id', auth_js_1.default.authenticateMiddleware, post_js_1.default.g
  *               $ref: '#/components/schemas/Post'
  *
  */
-router.post('/', auth_js_1.default.authenticateMiddleware, post_js_1.default.addNewPost);
+router.post('/add-post', auth_js_1.default.authenticateMiddleware, post_js_1.default.addNewPost);
 /**
  * @swagger
  * /post/{id}:
@@ -137,6 +163,6 @@ router.post('/', auth_js_1.default.authenticateMiddleware, post_js_1.default.add
  *               $ref: '#/components/schemas/Post'
  *
  */
-router.put('/:id', auth_js_1.default.authenticateMiddleware, post_js_1.default.putPostById);
+router.put('/:id', auth_js_1.default.authenticateMiddleware, post_js_1.default.updatePostById);
 module.exports = router;
 //# sourceMappingURL=post_route.js.map

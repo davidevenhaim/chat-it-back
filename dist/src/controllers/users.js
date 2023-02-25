@@ -24,9 +24,15 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const editUserInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
+    const { name, avatarUrl } = req.body;
     try {
-        const student = yield user_model_1.default.findByIdAndUpdate(id, {});
-        yield student.save();
+        const user = yield user_model_1.default.findByIdAndUpdate(id, {
+            $set: {
+                name,
+                avatarUrl,
+            }
+        });
+        yield user.save();
         res.status(200).send({ msg: "Update succes", status: 200 });
     }
     catch (err) {

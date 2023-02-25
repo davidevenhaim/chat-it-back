@@ -56,7 +56,34 @@ import auth from '../controllers/auth.js'
  *                  $ref: '#/components/schemas/Post'
  *  
  */
-router.get('/', post.getAllPosts)
+router.get('/', auth.authenticateMiddleware, post.getAllPosts)
+
+/**
+ * @swagger
+ * /post:
+ *   get:
+ *     summary: get list of post from server
+ *     tags: [Post]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: sender
+ *         schema:
+ *           type: string
+ *           description: filter the posts according to the given sender id
+ *     responses:
+ *       200:
+ *         description: the list of posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: 
+ *                  $ref: '#/components/schemas/Post'
+ *  
+ */
+router.get('/my-posts', auth.authenticateMiddleware, post.getAllPosts)
 
 /**
  * @swagger
@@ -91,7 +118,7 @@ router.get('/:id', auth.authenticateMiddleware, post.getPostById)
  *     summary: add a new post
  *     tags: [Post]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [JWT]
  *     requestBody:
  *       required: true
  *       content:
@@ -107,7 +134,7 @@ router.get('/:id', auth.authenticateMiddleware, post.getPostById)
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.post('/', auth.authenticateMiddleware, post.addNewPost)
+router.post('/add-post', auth.authenticateMiddleware, post.addNewPost)
 
 
 /**
@@ -140,6 +167,6 @@ router.post('/', auth.authenticateMiddleware, post.addNewPost)
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.put('/:id', auth.authenticateMiddleware, post.putPostById)
+router.put('/:id', auth.authenticateMiddleware, post.updatePostById)
 
 export = router
