@@ -74,7 +74,7 @@ const saveMessage = async (message: string, userId: string) => {
             ]
         );
 
-        return { status: "OK", data: dbMsg };
+        return { status: "OK", data: dbMsg[0] };
     } catch (err) {
 
         return { status: "FAIL", data: err }

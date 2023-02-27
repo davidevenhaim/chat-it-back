@@ -113,7 +113,6 @@ const login = async (req: Request, res: Response) => {
         else user.refresh_tokens.push(tokens.refreshToken)
 
         await user.save()
-        console.log("{ ...tokens, id: user._id }: ", { ...tokens, id: user._id })
         return res.status(200).send({ ...tokens, id: user._id })
     } catch (err) {
         console.log("error: " + err)

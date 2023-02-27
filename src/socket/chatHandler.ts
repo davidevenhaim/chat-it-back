@@ -6,9 +6,6 @@ import { saveMessage, getAllMessages } from "../controllers/message"
 export = (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>) => {
 
-    // {'to': destination user id,
-    //   'message' : message to send}
-
     const sendMessage = async (data: { message: string, userId: string }) => {
         if (!data) return;
         const { message, userId } = data;
@@ -17,12 +14,13 @@ export = (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
     }
 
     const getMessages = async (data: { roomId: string }) => {
-        if (!data) return;
-        const { roomId } = data;
-        console.log("get_messages");
-        console.log(roomId);
         const res = await getAllMessages();
-        // console.log(res);
+        if (!data) {
+            console.log("!Data");
+            io.emit("res_messages", res.data);
+            return;
+        }
+        const { roomId } = data;
 
         if (roomId) {
             io.to(roomId).emit("res_messages", res.data);
@@ -30,7 +28,6 @@ export = (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
             io.emit("res_messages", res.data);
         }
     }
-
 
     console.log('register chat handlers')
     socket.on("send_message", sendMessage)
