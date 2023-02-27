@@ -2,6 +2,7 @@
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser';
 import http from 'http';
+import cors from 'cors';
 
 // @ for .env variables
 import dotenv from 'dotenv'
@@ -17,25 +18,20 @@ import swaggerUI from "swagger-ui-express"
 import swaggerJsDoc from "swagger-jsdoc"
 
 // @ Routes
-import authRouter from './routes/auth_route.js'
-import postRouter from './routes/post_route.js'
+import authRouter from './routes/auth_route'
+import postRouter from './routes/post_route'
 import userRouter from './routes/user_route';
-import fileRouter from './routes/file_route.js'
+import fileRouter from './routes/file_route'
 
-// @ utils
-import { getUser } from './socket/utils'
-import Message from './models/message_model.js';
+const app = express();
 
-// @ chat stuff
-const socketio = require('socket.io')
-
-const io = socketio(http);
-
-const app = express()
 const server = http.createServer(app);
-
 app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
+
 app.use(bodyParser.json());
+
+app.use(cors());
+
 app.unsubscribe(cookieParser());
 
 
@@ -62,25 +58,6 @@ app.use('/post', postRouter)
 app.use('/user', userRouter);
 
 app.use('/file', fileRouter)
-
-io.on('connection', (socket) => {
-    console.log(socket.id);
-
-    socket.on('sendMessage', (message, senderId, callback) => {
-        const user = getUser(socket.id);
-        const msgData = {
-            userId: user.id,
-            text: message,
-        }
-        console.log("MsgData", msgData);
-
-        const msg = new Message({ message, sender: user.id });
-        msg.save().then(res => {
-            io.to().emit('message', res);
-            callback();
-        })
-    })
-})
 
 if (process.env.NODE_ENV == "development") {
     const options = {

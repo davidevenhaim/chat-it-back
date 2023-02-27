@@ -23,7 +23,7 @@ const file_route_js_1 = __importDefault(require("./routes/file_route.js"));
 // @ utils
 const utils_1 = require("./socket/utils");
 const message_model_js_1 = __importDefault(require("./models/message_model.js"));
-// @ chat
+// @ chat stuff
 const socketio = require('socket.io');
 const io = socketio(http_1.default);
 const app = (0, express_1.default)();

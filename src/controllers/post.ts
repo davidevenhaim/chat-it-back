@@ -111,30 +111,6 @@ const addNewPost = async (req: Request, res: Response) => {
     }
 }
 
-const editPost = async (req: Request, res: Response) => {
-    try {
-        const { userId, } = req.body;
-        const { id } = req.params;
-
-        const currentUser = await Users.findById(userId);
-
-        if (!currentUser) {
-            res.status(400).send({ err: 'Failed to create post - user id does not exists' });
-        }
-
-        const post = await Post.findByIdAndUpdate(id, {
-            ...req.body,
-        })
-
-        await post.save();
-
-        res.status(200).send(post);
-    } catch (err) {
-        res.status(400).send({ err: 'fail adding new post to db' + err })
-    }
-}
-
-
 const updatePostById = async (req: Request, res: Response) => {
     try {
         const { image, text, userId } = req.body;
