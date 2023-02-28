@@ -19,18 +19,23 @@ const auth_1 = __importDefault(require("../controllers/auth"));
 *     Post:
 *       type: object
 *       required:
-*         - message
-*         - sender
+*         - text
+*         - image
+*         - userId
 *       properties:
-*         message:
+*         text:
 *           type: string
 *           description: The post text
-*         sender:
+*         image:
 *           type: string
-*           description: The sending user id
+*           description: The post image
+*         userId:
+*           type: string
+*           description: The owner of the post
 *       example:
-*         message: 'this is my new post'
-*         sender: '12342345234556'
+*         text: 'this is my new post'
+*         image: 'localhost::3000//asdasdas'
+*         userId: 'lkasjdi23o...'
 */
 /**
  * @swagger
@@ -60,9 +65,9 @@ const auth_1 = __importDefault(require("../controllers/auth"));
 router.get('/', auth_1.default.authenticateMiddleware, post_1.default.getAllPosts);
 /**
  * @swagger
- * /post/{id}:
- *   get:
- *     summary: get post by id
+ * /file/{id}:
+ *   post:
+ *     summary: upload file and name it by id
  *     tags: [Post]
  *     security:
  *       - bearerAuth: []
@@ -72,14 +77,12 @@ router.get('/', auth_1.default.authenticateMiddleware, post_1.default.getAllPost
  *         requiered: true
  *         schema:
  *           type: string
- *           description: the requested post id
+ *           description: the file name as it will be saved
  *     responses:
  *       200:
- *         description: the requested post
+ *         description: the file path
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Post'
  *
  */
 router.get('/:id', auth_1.default.authenticateMiddleware, post_1.default.getPostById);

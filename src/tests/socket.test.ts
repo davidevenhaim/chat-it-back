@@ -11,6 +11,8 @@ import { DefaultEventsMap } from "@socket.io/component-emitter";
 // @ Models
 import Message from "../models/message_model";
 import User from '../models/user_model'
+import io from "../socket_server";
+import { Server } from "socket.io";
 
 const userEmail = "David@gmail.com"
 const userPassword = "12345"
@@ -23,7 +25,7 @@ const userName2 = "Lucia"
 let userId2 = ''
 
 type Client = {
-    socket: Socket<DefaultEventsMap, DefaultEventsMap>,
+    socket: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
     accessToken: string,
     id: string
 }
@@ -34,21 +36,19 @@ let client2: Client
 function clientSocketConnect(clientSocket): Promise<string> {
     return new Promise((resolve) => {
         clientSocket.on("connect", () => {
-            console.log("clientSocketConnected!!");
             resolve("1");
         });
     })
 }
 
 const connectUser = async () => {
-    console.log("connectUser!@#!@")
     const response1 = await request(server).post('/auth/register').send({
         "email": userEmail,
         "password": userPassword,
         "name": userName,
     })
-    console.log("response1 : ", response1.body);
-    const userId = response1.body._id
+
+    const id = response1.body._id
 
     const response = await request(server).post('/auth/login').send({
         "email": userEmail2,
@@ -56,16 +56,17 @@ const connectUser = async () => {
         "name": userName2,
     });
 
-    const token = response.body.accessToken
+    const accessToken = response.body.accessToken
 
-    const socket = Client('http://localhost:' + process.env.PORT || "3000", {
-        auth: {
-            token: 'barrer ' + token
-        }
-    });
-
+    // const socket = Client('http://localhost:' + process.env.PORT || "3000", {
+    //     auth: {
+    //         token: 'barrer ' + token
+    //     }
+    // });
+    const socket = io(server)
+    socket.close()
     await clientSocketConnect(socket)
-    const client = { socket: socket, accessToken: token, id: userId }
+    const client = { socket, accessToken, id }
     return client;
 }
 
@@ -73,14 +74,8 @@ describe("my awesome project", () => {
     jest.setTimeout(1000 * 20)
 
     beforeAll(async () => {
-        await Message.remove();
-        await User.remove();
-        console.log("@@@@@@@@@@@@@@@@@ res yet to be defined")
-        const res = await connectUser();
-        console.log("@@@@@@@@@@@@@@@@@ res", res)
-        client1 = res;
+        client1 = await connectUser();
         client2 = await connectUser()
-        console.log("finish beforeAll")
     });
 
     afterAll(() => {
@@ -92,8 +87,8 @@ describe("my awesome project", () => {
 
     test("Get new message should work", (done) => {
         client1.socket.once("send_message", (arg) => {
-            console.log("send_message", arg);
             expect(arg.msg).toBe('hello');
+
             done();
         });
         client1.socket.emit("send_message", { message: "Hello", userId: client1.id })
@@ -102,11 +97,10 @@ describe("my awesome project", () => {
 
     test("Post get all test", (done) => {
         client1.socket.once('get_messages', (arg) => {
-            console.log("on any " + arg)
             expect(arg.status).toBe('OK');
             done();
         });
-        console.log(" test post get all")
+
         client1.socket.emit("get_messages", [{ message: "Hello" }, { message: "Sup mannnn" }])
     });
 

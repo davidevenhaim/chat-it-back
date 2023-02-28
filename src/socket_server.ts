@@ -27,7 +27,6 @@ export = (server: http.Server) => {
     });
 
     io.on('connection', async (socket) => {
-        console.log('User connected ' + socket.id);
         // echoHandler(io, socket)
         // postHandler(io, socket)
         chatHandler(io, socket)

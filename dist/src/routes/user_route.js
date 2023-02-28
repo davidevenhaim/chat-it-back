@@ -17,26 +17,21 @@ const router = express_1.default.Router();
 * @swagger
 * components:
 *   schemas:
-*     Student:
+*     Message:
 *       type: object
 *       required:
-*         - id
-*         - name
-*         - avatarUrl
+*         - message
+*         - userId
 *       properties:
-*         id:
+*         message:
 *           type: string
-*           description: The student id
-*         name:
+*           description: The message content
+*         userId:
 *           type: string
-*           description: The student name
-*         avatarUrl:
-*           type: string
-*           description: The student avatar url
+*           description: The message owner user id
 *       example:
-*         id: '123'
-*         name: 'Oren'
-*         avatarUrl: 'www.mysute/oren.jpg'
+*         message 'Hello world'
+*         userId: '12312ij12k1...'
 */
 /**
  * @swagger

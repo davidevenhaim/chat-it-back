@@ -28,7 +28,7 @@ const router = express.Router()
 *           type: string
 *           description: The message owner user id
 *       example:
-*         message 'Hello world'
+*         message: 'Hello world'
 *         userId: '12312ij12k1...'
 */
 

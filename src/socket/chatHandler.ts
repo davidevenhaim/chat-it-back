@@ -16,7 +16,6 @@ export = (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
     const getMessages = async (data: { roomId: string }) => {
         const res = await getAllMessages();
         if (!data) {
-            console.log("!Data");
             io.emit("res_messages", res.data);
             return;
         }
@@ -29,7 +28,6 @@ export = (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
         }
     }
 
-    console.log('register chat handlers')
     socket.on("send_message", sendMessage)
     socket.on("get_messages", getMessages)
 }

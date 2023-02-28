@@ -30,6 +30,8 @@ const auth_1 = __importDefault(require("../controllers/auth"));
 *         - email
 *         - password
 *         - name
+*         - avatarUrl
+*         - posts
 *       properties:
 *         email:
 *           type: string
@@ -40,10 +42,18 @@ const auth_1 = __importDefault(require("../controllers/auth"));
 *         name:
 *           type: string
 *           description: The user name
+*         avatarUrl:
+*           type: string
+*           description: The user avatar
+*         posts:
+*           type: string
+*           description: The user post list
 *       example:
 *         email: 'david@gmail.com'
 *         password: '123456'
 *         name: 'david'
+*         avatarUrl: 'david'
+*         posts: [{text: "This is my post!", image: "this.is.my.image/local....."}]
 */
 /**
  * @swagger
@@ -86,6 +96,8 @@ router.post('/register', auth_1.default.register);
  *     tags: [Auth]
  *     requestBody:
  *       required: true
+ *         - email
+ *         - password
  *       content:
  *         application/json:
  *           schema:
@@ -158,12 +170,17 @@ router.get('/logout', auth_1.default.logout);
  *     tags: [Auth]
  *     requestBody:
  *       required: true
+ *         - email
+ *         - name
+ *         - avatarUrl
+ *         - accessToken
  *       content:
  *         application/json:
  *           schema:
  *             email: string;
  *             name: string;
  *             avatar: string;
+ *             accessToken: string;
  *     security:
  *       - bearerAuth: []
 *     responses:

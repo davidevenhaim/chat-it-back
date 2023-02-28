@@ -1,10 +1,3 @@
-/**
-* @swagger
-* tags:
-*   name: File
-*   description: Files upload
-*/
-
 import express, { NextFunction, Request, Response } from 'express'
 const router = express.Router()
 
@@ -24,30 +17,55 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
+
+/**
+* @swagger
+* components:
+*   securitySchemes:
+*     bearerAuth:
+*       type: http
+*       scheme: bearer
+*       bearerFormat: JWT
+*/
+
+/**
+* @swagger
+* tags:
+*       name: File
+*       description: The File save API
+*/
+
+
 /**
  * @swagger
- * /post:
- *   get:
- *     summary: Upload file to the server
- *     tags: [Post]
+ * /file/upload/{id}:
+ *   post:
+ *     summary: add new file and name it as the given id
+ *     tags: [File]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [JWT Token]
  *     parameters:
- *       - in: query
- *         name: sender
+ *       - in: path
+ *         name: id
+ *         requiered: true
  *         schema:
  *           type: string
- *           description: filter the posts according to the given sender id
+ *           description: The id of the post/user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
  *     responses:
  *       200:
- *         description: upload file by id - post or user!
+ *         description: the requested post
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items: 
- *                  $ref: '#/components/schemas/Post'
- *                  $ref: '#/components/schemas/User'
+ *               imageUrl:
+ *                 type: string
+ *                 description: The image url - contains the id as name
+ *             example:
+ *               imageUrl: 'my.image.url/uploads'
  *  
  */
 router.post('/upload/:id', upload.single("file"), function (req: Request, res: Response) {

@@ -81,10 +81,9 @@ const getPostById = async (req: Request, res: Response) => {
 
 
 const addNewPost = async (req: Request, res: Response) => {
-    
+
     try {
         const { userId, text, image } = req.body;
-        console.log(req.body);
         const currentUser = await Users.findById(userId);
 
         if (!currentUser) {
@@ -117,7 +116,6 @@ const updatePostById = async (req: Request, res: Response) => {
         const { id: postId } = req.params;
 
         const post = await Post.findById(postId);
-        console.log(post.userId.toString())
         if (userId !== post.userId.toString()) {
             return res.status(401).send({ err: "Error, user is not authorized to change this post." });
         }
@@ -132,7 +130,6 @@ const updatePostById = async (req: Request, res: Response) => {
         res.status(200).send(post)
 
     } catch (err) {
-        console.log("fail to update post in db")
         res.status(400).send({ err: 'fail adding new post to db' + err })
     }
 }

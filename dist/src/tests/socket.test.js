@@ -16,11 +16,7 @@ require('dotenv').config();
 const app_1 = __importDefault(require("../app"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const supertest_1 = __importDefault(require("supertest"));
-// @ Chat stuff
-const socket_io_client_1 = __importDefault(require("socket.io-client"));
-// @ Models
-const message_model_1 = __importDefault(require("../models/message_model"));
-const user_model_1 = __importDefault(require("../models/user_model"));
+const socket_server_1 = __importDefault(require("../socket_server"));
 const userEmail = "David@gmail.com";
 const userPassword = "12345";
 const userName = "David";
@@ -47,31 +43,28 @@ const connectUser = () => __awaiter(void 0, void 0, void 0, function* () {
         "name": userName,
     });
     console.log("response1 : ", response1.body);
-    const userId = response1.body._id;
+    const id = response1.body._id;
     const response = yield (0, supertest_1.default)(app_1.default).post('/auth/login').send({
         "email": userEmail2,
         "password": userPassword2,
         "name": userName2,
     });
-    const token = response.body.accessToken;
-    const socket = (0, socket_io_client_1.default)('http://localhost:' + process.env.PORT || "3000", {
-        auth: {
-            token: 'barrer ' + token
-        }
-    });
+    const accessToken = response.body.accessToken;
+    // const socket = Client('http://localhost:' + process.env.PORT || "3000", {
+    //     auth: {
+    //         token: 'barrer ' + token
+    //     }
+    // });
+    const socket = (0, socket_server_1.default)(app_1.default);
+    socket.close();
     yield clientSocketConnect(socket);
-    const client = { socket: socket, accessToken: token, id: userId };
+    const client = { socket, accessToken, id };
     return client;
 });
 describe("my awesome project", () => {
     jest.setTimeout(1000 * 20);
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield message_model_1.default.remove();
-        yield user_model_1.default.remove();
-        console.log("@@@@@@@@@@@@@@@@@ res yet to be defined");
-        const res = yield connectUser();
-        console.log("@@@@@@@@@@@@@@@@@ res", res);
-        client1 = res;
+        client1 = yield connectUser();
         client2 = yield connectUser();
         console.log("finish beforeAll");
     }));

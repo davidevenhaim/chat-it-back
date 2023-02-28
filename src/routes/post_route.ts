@@ -40,10 +40,10 @@ import auth from '../controllers/auth'
  * @swagger
  * /post:
  *   get:
- *     summary: get list of post from server
+ *     summary: get all posts
  *     tags: [Post]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [JWT Token]
  *     parameters:
  *       - in: query
  *         name: sender
@@ -67,24 +67,22 @@ router.get('/', auth.authenticateMiddleware, post.getAllPosts)
  * @swagger
  * /post/{id}:
  *   get:
- *     summary: get post by id
+ *     summary: get one post by id
  *     tags: [Post]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [JWT Token]
  *     parameters:
  *       - in: path
  *         name: id
  *         requiered: true
  *         schema:
  *           type: string
- *           description: the requested post id
+ *           description: the file name as it will be saved
  *     responses:
  *       200:
- *         description: the requested post
+ *         description: the file path
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Post'
  *  
  */
 router.get('/:id', auth.authenticateMiddleware, post.getPostById)
@@ -96,7 +94,7 @@ router.get('/:id', auth.authenticateMiddleware, post.getPostById)
  *     summary: add a new post
  *     tags: [Post]
  *     security:
- *       - bearerAuth: [JWT]
+ *       - bearerAuth: [JWT Token]
  *     requestBody:
  *       required: true
  *       content:
@@ -121,7 +119,7 @@ router.post('/add-post', auth.authenticateMiddleware, post.addNewPost)
  *     summary: update existing post by id
  *     tags: [Post]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [JWT Token]
  *     parameters:
  *       - in: path
  *         name: id
