@@ -17,8 +17,8 @@ import auth from '../controllers/auth'
 /**
 * @swagger
 * tags:
-*   name: Auth
-*   description: The Authentication API
+*       name: Auth
+*       description: The Authentication API
 */
 
 /**
@@ -30,6 +30,9 @@ import auth from '../controllers/auth'
 *       required:
 *         - email
 *         - password
+*         - name
+*         - avatarUrl
+*         - posts
 *       properties:
 *         email:
 *           type: string
@@ -37,9 +40,21 @@ import auth from '../controllers/auth'
 *         password:
 *           type: string
 *           description: The user password
+*         name:
+*           type: string
+*           description: The user name
+*         avatarUrl:
+*           type: string
+*           description: The user avatar
+*         posts:
+*           type: string
+*           description: The user post list
 *       example:
-*         email: 'bob@gmail.com'
+*         email: 'david@gmail.com'
 *         password: '123456'
+*         name: 'david'
+*         avatarUrl: 'david'
+*         posts: [{text: "This is my post!", image: "this.is.my.image/local....."}]
 */
 
 /**
@@ -50,6 +65,9 @@ import auth from '../controllers/auth'
  *     tags: [Auth]
  *     requestBody:
  *       required: true
+ *         - email
+ *         - password
+ *         - name
  *       content:
  *         application/json:
  *           schema:
@@ -82,6 +100,8 @@ router.post('/register', auth.register)
  *     tags: [Auth]
  *     requestBody:
  *       required: true
+ *         - email
+ *         - password
  *       content:
  *         application/json:
  *           schema:
@@ -100,6 +120,7 @@ router.post('/register', auth.register)
  *                 description: The Refresh Token
  *             example:
  *               access_token: '223412341...'
+ *               id: '12948uuedn9wu...'
  *               refresh_token: '123456...'
  *
  */
@@ -128,6 +149,7 @@ router.post('/login', auth.login)
  *                 description: The Refresh Token
  *             example:
  *               access_token: '223412341...'
+ *               id: '123oi12jnoisjad9io2...'
  *               refresh_token: '123456...'
  *
  */
@@ -157,12 +179,17 @@ router.get('/logout', auth.logout)
  *     tags: [Auth]
  *     requestBody:
  *       required: true
+ *         - email
+ *         - name
+ *         - avatarUrl
+ *         - accessToken
  *       content:
  *         application/json:
  *           schema:
  *             email: string;
  *             name: string;
  *             avatar: string;
+ *             accessToken: string;
  *     security:
  *       - bearerAuth: []
 *     responses:
@@ -172,6 +199,11 @@ router.get('/logout', auth.logout)
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *             example:
+ *               access_token: '223412341...'
+ *               id: '123oi12jnoisjad9io2...'
+ *               refresh_token: '123456...'
+ *
  *       400:
  *         description: Google sign user  error
  *         content:

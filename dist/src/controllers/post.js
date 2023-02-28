@@ -80,7 +80,6 @@ const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("Add new post");
     try {
         const { userId, text, image } = req.body;
         console.log(req.body);
@@ -101,22 +100,6 @@ const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     catch (err) {
         console.log(err);
-        res.status(400).send({ err: 'fail adding new post to db' + err });
-    }
-});
-const editPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { userId, } = req.body;
-        const { id } = req.params;
-        const currentUser = yield user_model_1.default.findById(userId);
-        if (!currentUser) {
-            res.status(400).send({ err: 'Failed to create post - user id does not exists' });
-        }
-        const post = yield post_model_1.default.findByIdAndUpdate(id, Object.assign({}, req.body));
-        yield post.save();
-        res.status(200).send(post);
-    }
-    catch (err) {
         res.status(400).send({ err: 'fail adding new post to db' + err });
     }
 });

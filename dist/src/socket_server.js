@@ -11,10 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const socket_io_1 = require("socket.io");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const echoHandler_1 = __importDefault(require("./socket/echoHandler"));
-const postHandler_1 = __importDefault(require("./socket/postHandler"));
+// @ Socket
+const socket_io_1 = require("socket.io");
+// Socket-Handlers
 const chatHandler_1 = __importDefault(require("./socket/chatHandler"));
 module.exports = (server) => {
     const io = new socket_io_1.Server(server);
@@ -34,9 +34,9 @@ module.exports = (server) => {
         });
     }));
     io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('a user connected ' + socket.id);
-        (0, echoHandler_1.default)(io, socket);
-        (0, postHandler_1.default)(io, socket);
+        console.log('User connected ' + socket.id);
+        // echoHandler(io, socket)
+        // postHandler(io, socket)
         (0, chatHandler_1.default)(io, socket);
         const userId = socket.data.user;
         yield socket.join(userId);

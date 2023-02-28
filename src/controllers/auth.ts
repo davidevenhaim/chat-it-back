@@ -9,7 +9,7 @@ const defaultPass = "david119191"
 function sendError(res: Response, error: string) {
     res.status(400).send({
         'err': error
-    })
+    });
 }
 
 const register = async (req: Request, res: Response) => {
@@ -82,7 +82,7 @@ async function generateTokens(userId: string) {
     const accessToken = jwt.sign(
         { 'id': userId },
         process.env.ACCESS_TOKEN_SECRET,
-        { 'expiresIn': process.env.JWT_TOKEN_EXPIRATION }
+        { 'expiresIn': process.env.JWT_TOKEN_EXPIRATION || "2s" }
     )
     const refreshToken = jwt.sign(
         { 'id': userId },

@@ -13,9 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const server_1 = __importDefault(require("./server"));
 const socket_server_1 = __importDefault(require("./socket_server"));
-(0, socket_server_1.default)(server_1.default);
-server_1.default.listen(process.env.PORT, () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('Server started');
+server_1.default.listen(process.env.PORT || 3000, () => __awaiter(void 0, void 0, void 0, function* () {
+    (0, socket_server_1.default)(server_1.default);
+    console.log('Server started on port: ', process.env.PORT);
 }));
 module.exports = server_1.default;
 //# sourceMappingURL=app.js.map

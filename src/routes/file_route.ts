@@ -23,6 +23,33 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+
+/**
+ * @swagger
+ * /post:
+ *   get:
+ *     summary: Upload file to the server
+ *     tags: [Post]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: sender
+ *         schema:
+ *           type: string
+ *           description: filter the posts according to the given sender id
+ *     responses:
+ *       200:
+ *         description: upload file by id - post or user!
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: 
+ *                  $ref: '#/components/schemas/Post'
+ *                  $ref: '#/components/schemas/User'
+ *  
+ */
 router.post('/upload/:id', upload.single("file"), function (req: Request, res: Response) {
     res.status(200).send({ url: base + req.file.path })
 });

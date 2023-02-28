@@ -81,7 +81,7 @@ const getPostById = async (req: Request, res: Response) => {
 
 
 const addNewPost = async (req: Request, res: Response) => {
-    console.log("Add new post");
+    
     try {
         const { userId, text, image } = req.body;
         console.log(req.body);

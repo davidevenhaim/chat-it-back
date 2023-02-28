@@ -22,6 +22,7 @@ import authRouter from './routes/auth_route'
 import postRouter from './routes/post_route'
 import userRouter from './routes/user_route';
 import fileRouter from './routes/file_route'
+// import { jestSHIT } from './utils/constants';
 
 const app = express();
 

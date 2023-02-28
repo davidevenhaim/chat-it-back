@@ -10,6 +10,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const auth_1 = __importDefault(require("../controllers/auth"));
 const users_1 = __importDefault(require("../controllers/users"));
 const router = express_1.default.Router();
 /**
@@ -61,7 +62,7 @@ const router = express_1.default.Router();
  *               $ref: '#/components/schemas/Post'
  *
  */
-router.get('/:id', users_1.default.getUser);
+router.get('/:id', auth_1.default.authenticateMiddleware, users_1.default.getUser);
 /**
  * @swagger
  * /user/edit-user/{id}:
@@ -86,6 +87,6 @@ router.get('/:id', users_1.default.getUser);
  *               $ref: '#/components/schemas/Post'
  *
  */
-router.post('/edit-user/:id', users_1.default.editUserInfo);
+router.post('/edit-user/:id', auth_1.default.authenticateMiddleware, users_1.default.editUserInfo);
 exports.default = router;
 //# sourceMappingURL=user_route.js.map

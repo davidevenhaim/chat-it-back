@@ -17,18 +17,23 @@ import auth from '../controllers/auth'
 *     Post:
 *       type: object
 *       required:
-*         - message
-*         - sender
+*         - text
+*         - image
+*         - userId
 *       properties:
-*         message:
+*         text:
 *           type: string
 *           description: The post text
-*         sender:
+*         image:
 *           type: string
-*           description: The sending user id
+*           description: The post image
+*         userId:
+*           type: string
+*           description: The owner of the post
 *       example:
-*         message: 'this is my new post'
-*         sender: '12342345234556'
+*         text: 'this is my new post'
+*         image: 'localhost::3000//asdasdas'
+*         userId: 'lkasjdi23o...'
 */
 
 /**
@@ -57,33 +62,6 @@ import auth from '../controllers/auth'
  *  
  */
 router.get('/', auth.authenticateMiddleware, post.getAllPosts)
-
-/**
- * @swagger
- * /post:
- *   get:
- *     summary: get list of post from server
- *     tags: [Post]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: sender
- *         schema:
- *           type: string
- *           description: filter the posts according to the given sender id
- *     responses:
- *       200:
- *         description: the list of posts
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items: 
- *                  $ref: '#/components/schemas/Post'
- *  
- */
-router.get('/my-posts', auth.authenticateMiddleware, post.getAllPosts)
 
 /**
  * @swagger

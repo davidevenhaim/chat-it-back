@@ -6,6 +6,7 @@
 */
 
 import express from 'express'
+import auth from '../controllers/auth'
 import users from '../controllers/users'
 
 const router = express.Router()
@@ -14,26 +15,21 @@ const router = express.Router()
 * @swagger
 * components:
 *   schemas:
-*     Student:
+*     Message:
 *       type: object
 *       required:
-*         - id
-*         - name
-*         - avatarUrl
+*         - message
+*         - userId
 *       properties:
-*         id:
+*         message:
 *           type: string
-*           description: The student id
-*         name:
+*           description: The message content
+*         userId:
 *           type: string
-*           description: The student name
-*         avatarUrl:
-*           type: string
-*           description: The student avatar url
+*           description: The message owner user id
 *       example:
-*         id: '123'
-*         name: 'Oren'
-*         avatarUrl: 'www.mysute/oren.jpg'
+*         message 'Hello world'
+*         userId: '12312ij12k1...'
 */
 
 /**
@@ -60,7 +56,7 @@ const router = express.Router()
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.get('/:id', users.getUser)
+router.get('/:id', auth.authenticateMiddleware, users.getUser)
 
 /**
  * @swagger
@@ -86,6 +82,6 @@ router.get('/:id', users.getUser)
  *               $ref: '#/components/schemas/Post'
  *  
  */
-router.post('/edit-user/:id', users.editUserInfo)
+router.post('/edit-user/:id', auth.authenticateMiddleware, users.editUserInfo)
 
 export default router;

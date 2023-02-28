@@ -10,8 +10,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-const post_js_1 = __importDefault(require("../controllers/post.js"));
-const auth_js_1 = __importDefault(require("../controllers/auth.js"));
+const post_1 = __importDefault(require("../controllers/post"));
+const auth_1 = __importDefault(require("../controllers/auth"));
 /**
 * @swagger
 * components:
@@ -57,33 +57,7 @@ const auth_js_1 = __importDefault(require("../controllers/auth.js"));
  *                  $ref: '#/components/schemas/Post'
  *
  */
-router.get('/', auth_js_1.default.authenticateMiddleware, post_js_1.default.getAllPosts);
-/**
- * @swagger
- * /post:
- *   get:
- *     summary: get list of post from server
- *     tags: [Post]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: sender
- *         schema:
- *           type: string
- *           description: filter the posts according to the given sender id
- *     responses:
- *       200:
- *         description: the list of posts
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                  $ref: '#/components/schemas/Post'
- *
- */
-router.get('/my-posts', auth_js_1.default.authenticateMiddleware, post_js_1.default.getAllPosts);
+router.get('/', auth_1.default.authenticateMiddleware, post_1.default.getAllPosts);
 /**
  * @swagger
  * /post/{id}:
@@ -108,7 +82,7 @@ router.get('/my-posts', auth_js_1.default.authenticateMiddleware, post_js_1.defa
  *               $ref: '#/components/schemas/Post'
  *
  */
-router.get('/:id', auth_js_1.default.authenticateMiddleware, post_js_1.default.getPostById);
+router.get('/:id', auth_1.default.authenticateMiddleware, post_1.default.getPostById);
 /**
  * @swagger
  * /post/add-post:
@@ -132,7 +106,7 @@ router.get('/:id', auth_js_1.default.authenticateMiddleware, post_js_1.default.g
  *               $ref: '#/components/schemas/Post'
  *
  */
-router.post('/add-post', auth_js_1.default.authenticateMiddleware, post_js_1.default.addNewPost);
+router.post('/add-post', auth_1.default.authenticateMiddleware, post_1.default.addNewPost);
 /**
  * @swagger
  * /post/{id}:
@@ -163,6 +137,6 @@ router.post('/add-post', auth_js_1.default.authenticateMiddleware, post_js_1.def
  *               $ref: '#/components/schemas/Post'
  *
  */
-router.put('/:id', auth_js_1.default.authenticateMiddleware, post_js_1.default.updatePostById);
+router.put('/:id', auth_1.default.authenticateMiddleware, post_1.default.updatePostById);
 module.exports = router;
 //# sourceMappingURL=post_route.js.map

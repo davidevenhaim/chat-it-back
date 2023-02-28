@@ -38,7 +38,7 @@ Content-Type: application/json
 
 {
     "message": "this is my new message",
-    "sender":"123456"
+    "sender":"123456",
 }
 
 ###

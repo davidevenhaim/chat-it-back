@@ -12,37 +12,49 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require('dotenv').config();
 const app_1 = __importDefault(require("../app"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const socket_io_client_1 = __importDefault(require("socket.io-client"));
 const supertest_1 = __importDefault(require("supertest"));
-const post_model_1 = __importDefault(require("../models/post_model"));
+// @ Chat stuff
+const socket_io_client_1 = __importDefault(require("socket.io-client"));
+// @ Models
+const message_model_1 = __importDefault(require("../models/message_model"));
 const user_model_1 = __importDefault(require("../models/user_model"));
-const userEmail = "user1@gmail.com";
+const userEmail = "David@gmail.com";
 const userPassword = "12345";
-const userEmail2 = "user2@gmail.com";
+const userName = "David";
+let userId1 = '';
+const userEmail2 = "Lucia@gmail.com";
 const userPassword2 = "12345";
+const userName2 = "Lucia";
+let userId2 = '';
 let client1;
 let client2;
 function clientSocketConnect(clientSocket) {
     return new Promise((resolve) => {
         clientSocket.on("connect", () => {
+            console.log("clientSocketConnected!!");
             resolve("1");
         });
     });
 }
-const connectUser = (userEmail, userPassword) => __awaiter(void 0, void 0, void 0, function* () {
+const connectUser = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("connectUser!@#!@");
     const response1 = yield (0, supertest_1.default)(app_1.default).post('/auth/register').send({
         "email": userEmail,
-        "password": userPassword
+        "password": userPassword,
+        "name": userName,
     });
+    console.log("response1 : ", response1.body);
     const userId = response1.body._id;
     const response = yield (0, supertest_1.default)(app_1.default).post('/auth/login').send({
-        "email": userEmail,
-        "password": userPassword
+        "email": userEmail2,
+        "password": userPassword2,
+        "name": userName2,
     });
     const token = response.body.accessToken;
-    const socket = (0, socket_io_client_1.default)('http://localhost:' + process.env.PORT, {
+    const socket = (0, socket_io_client_1.default)('http://localhost:' + process.env.PORT || "3000", {
         auth: {
             token: 'barrer ' + token
         }
@@ -52,12 +64,15 @@ const connectUser = (userEmail, userPassword) => __awaiter(void 0, void 0, void 
     return client;
 });
 describe("my awesome project", () => {
-    jest.setTimeout(15000);
+    jest.setTimeout(1000 * 20);
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield post_model_1.default.remove();
+        yield message_model_1.default.remove();
         yield user_model_1.default.remove();
-        client1 = yield connectUser(userEmail, userPassword);
-        client2 = yield connectUser(userEmail2, userPassword2);
+        console.log("@@@@@@@@@@@@@@@@@ res yet to be defined");
+        const res = yield connectUser();
+        console.log("@@@@@@@@@@@@@@@@@ res", res);
+        client1 = res;
+        client2 = yield connectUser();
         console.log("finish beforeAll");
     }));
     afterAll(() => {
@@ -66,32 +81,32 @@ describe("my awesome project", () => {
         app_1.default.close();
         mongoose_1.default.connection.close();
     });
-    test("should work", (done) => {
-        client1.socket.once("echo:echo_res", (arg) => {
-            console.log("echo:echo");
+    test("Get new message should work", (done) => {
+        client1.socket.once("send_message", (arg) => {
+            console.log("send_message", arg);
             expect(arg.msg).toBe('hello');
             done();
         });
-        client1.socket.emit("echo:echo", { 'msg': 'hello' });
+        client1.socket.emit("send_message", { message: "Hello", userId: client1.id });
     });
     test("Post get all test", (done) => {
-        client1.socket.once('post:get_all', (arg) => {
+        client1.socket.once('get_messages', (arg) => {
             console.log("on any " + arg);
             expect(arg.status).toBe('OK');
             done();
         });
         console.log(" test post get all");
-        client1.socket.emit("post:get_all", "stam");
+        client1.socket.emit("get_messages", [{ message: "Hello" }, { message: "Sup mannnn" }]);
     });
     test("Test chat messages", (done) => {
         const message = "hi... test 123";
-        client2.socket.once('chat:message', (args) => {
-            expect(args.to).toBe(client2.id);
+        client2.socket.once('new-message', (args) => {
+            expect(args.userId).toBe(client2.id);
             expect(args.message).toBe(message);
             expect(args.from).toBe(client1.id);
             done();
         });
-        client1.socket.emit("chat:send_message", { 'to': client2.id, 'message': message });
+        client1.socket.emit("send_message", { message: message, userId: client2.id });
     });
 });
 //# sourceMappingURL=socket.test.js.map

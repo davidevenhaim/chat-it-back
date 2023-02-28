@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-const auth_js_1 = __importDefault(require("../controllers/auth.js"));
+const auth_1 = __importDefault(require("../controllers/auth"));
 /**
 * @swagger
 * components:
@@ -17,8 +17,8 @@ const auth_js_1 = __importDefault(require("../controllers/auth.js"));
 /**
 * @swagger
 * tags:
-*   name: Auth
-*   description: The Authentication API
+*       name: Auth
+*       description: The Authentication API
 */
 /**
 * @swagger
@@ -29,6 +29,7 @@ const auth_js_1 = __importDefault(require("../controllers/auth.js"));
 *       required:
 *         - email
 *         - password
+*         - name
 *       properties:
 *         email:
 *           type: string
@@ -36,9 +37,13 @@ const auth_js_1 = __importDefault(require("../controllers/auth.js"));
 *         password:
 *           type: string
 *           description: The user password
+*         name:
+*           type: string
+*           description: The user name
 *       example:
-*         email: 'bob@gmail.com'
+*         email: 'david@gmail.com'
 *         password: '123456'
+*         name: 'david'
 */
 /**
  * @swagger
@@ -48,6 +53,9 @@ const auth_js_1 = __importDefault(require("../controllers/auth.js"));
  *     tags: [Auth]
  *     requestBody:
  *       required: true
+ *         - email
+ *         - password
+ *         - name
  *       content:
  *         application/json:
  *           schema:
@@ -69,7 +77,7 @@ const auth_js_1 = __importDefault(require("../controllers/auth.js"));
  *                 description: The error description
  *
  */
-router.post('/register', auth_js_1.default.register);
+router.post('/register', auth_1.default.register);
 /**
  * @swagger
  * /auth/login:
@@ -96,10 +104,11 @@ router.post('/register', auth_js_1.default.register);
  *                 description: The Refresh Token
  *             example:
  *               access_token: '223412341...'
+ *               id: '12948uuedn9wu...'
  *               refresh_token: '123456...'
  *
  */
-router.post('/login', auth_js_1.default.login);
+router.post('/login', auth_1.default.login);
 /**
  * @swagger
  * /auth/refresh:
@@ -122,10 +131,11 @@ router.post('/login', auth_js_1.default.login);
  *                 description: The Refresh Token
  *             example:
  *               access_token: '223412341...'
+ *               id: '123oi12jnoisjad9io2...'
  *               refresh_token: '123456...'
  *
  */
-router.get('/refresh', auth_js_1.default.refresh);
+router.get('/refresh', auth_1.default.refresh);
 /**
  * @swagger
  * /auth/logout:
@@ -139,7 +149,7 @@ router.get('/refresh', auth_js_1.default.refresh);
  *         description: logout sucess, refresh token is invalidated
  *
  */
-router.get('/logout', auth_js_1.default.logout);
+router.get('/logout', auth_1.default.logout);
 /**
  * @swagger
  * /auth/google-sign-user:
@@ -163,6 +173,11 @@ router.get('/logout', auth_js_1.default.logout);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *             example:
+ *               access_token: '223412341...'
+ *               id: '123oi12jnoisjad9io2...'
+ *               refresh_token: '123456...'
+ *
  *       400:
  *         description: Google sign user  error
  *         content:
@@ -173,6 +188,6 @@ router.get('/logout', auth_js_1.default.logout);
  *                 description: The error description
  *
  */
-router.post('/google-sign-user', auth_js_1.default.googleSignUser);
+router.post('/google-sign-user', auth_1.default.googleSignUser);
 module.exports = router;
 //# sourceMappingURL=auth_route.js.map

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import request from 'supertest'
 import app from '../server'
 import mongoose from 'mongoose'

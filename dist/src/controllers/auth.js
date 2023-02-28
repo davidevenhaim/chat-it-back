@@ -77,7 +77,7 @@ function changeUserPassword(req, res) {
 }
 function generateTokens(userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const accessToken = jsonwebtoken_1.default.sign({ 'id': userId }, process.env.ACCESS_TOKEN_SECRET, { 'expiresIn': process.env.JWT_TOKEN_EXPIRATION });
+        const accessToken = jsonwebtoken_1.default.sign({ 'id': userId }, process.env.ACCESS_TOKEN_SECRET, { 'expiresIn': process.env.JWT_TOKEN_EXPIRATION || "2s" });
         const refreshToken = jsonwebtoken_1.default.sign({ 'id': userId }, process.env.REFRESH_TOKEN_SECRET);
         return { 'accessToken': accessToken, 'refreshToken': refreshToken };
     });
@@ -101,7 +101,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         else
             user.refresh_tokens.push(tokens.refreshToken);
         yield user.save();
-        console.log("{ ...tokens, id: user._id }: ", Object.assign(Object.assign({}, tokens), { id: user._id }));
         return res.status(200).send(Object.assign(Object.assign({}, tokens), { id: user._id }));
     }
     catch (err) {
